@@ -1,7 +1,7 @@
 ---
 title: "ProyectoTD2022"
 output: html_notebook
-author: " Carles Adam , Ana, Arnau, Ivan y Amparo"
+author: " Carles Vicent Adam Castañer, Ana González Mandler, Arnau Monzó Ferragut, Ivan Alexandrov y Amparo Galvez Vilar"
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
