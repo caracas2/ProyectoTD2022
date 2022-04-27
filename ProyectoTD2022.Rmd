@@ -4,9 +4,9 @@ output: html_notebook
 author: " Carles Vicent Adam Castañer, Ana González Mandler, Arnau Monzó Ferragut, Ivan Alexandrov y Amparo Galvez Vilar"
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
 
 ```{r}
 library(tidyr)
@@ -37,3 +37,11 @@ df <- df %>% select(-c(X_id, fiwareServicePath, entityType))
 df <- df %>% rename(FechaEnvio = recvTime) %>% rename(FechaObservacion = dateObserved) %>% rename(IdEntidad = entityId)
 
 ```
+
+## PREGUNTAS PROPUESTAS
+
+1.  ¿Que calle es la mas ruidsosa? ¿Y la que menos?
+
+2.  ¿A que hora hay el mayor y menor índice de ruido?
+
+3.  ¿Que relación podrías extraer de la pregunta anterior?
