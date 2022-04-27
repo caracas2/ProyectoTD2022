@@ -29,8 +29,11 @@ df14 <- read.csv("data/D14.csv")
 df <- df1 %>% union_all(df2) %>% union_all(df3) %>% union_all(df4) %>%union_all(df5) %>%union_all(df6) %>%union_all(df7) %>%union_all(df8) %>%union_all(df9) %>%union_all(df10) %>%union_all(df11) %>%
 union_all(df12) %>%union_all(df13) %>%union_all(df14)
 
-view(df)
-  
+df <- df %>% pivot_longer(cols = starts_with("LA"), names_to = "Periodo", values_to = "Valores", names_prefix = "/")
+df$dateObserved <- as.Date(df$dateObserved)
 
+df <- df %>% select(-c(X_id, fiwareServicePath, entityType))
+
+df <- df %>% rename(FechaEnvio = recvTime) %>% rename(FechaObservacion = dateObserved) %>% rename(IdEntidad = entityId)
 
 ```
