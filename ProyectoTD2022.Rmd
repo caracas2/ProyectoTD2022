@@ -9,5 +9,32 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 ```{r}
-plot(cars)
+library(tidyr)
+library(dplyr)
+df1 <- read.csv("data/D1.csv")
+df2 <- read.csv("data/D2.csv")
+df3 <- read.csv("data/D3.csv")
+df4 <- read.csv("data/D4.csv")
+df5 <- read.csv("data/D5.csv")
+df6 <- read.csv("data/D6.csv")
+df7<- read.csv("data/D7.csv")
+df8 <- read.csv("data/D8.csv")
+df9 <- read.csv("data/D9.csv")
+df10 <- read.csv("data/D10.csv")
+df11 <- read.csv("data/D11.csv")
+df12 <- read.csv("data/D12.csv")
+df13 <- read.csv("data/D13.csv")
+df14 <- read.csv("data/D14.csv")
+df <- df1 %>% union_all(df2) %>% union_all(df3) %>% union_all(df4) %>%union_all(df5) %>%union_all(df6) %>%union_all(df7) %>%union_all(df8) %>%union_all(df9) %>%union_all(df10) %>%union_all(df11) %>%
+union_all(df12) %>%union_all(df13) %>%union_all(df14)
+df <- df %>% pivot_longer(cols = starts_with("LA"), names_to = "Periodo", values_to = "Valores", names_prefix = "/")
+df$dateObserved <- as.Date(df$dateObserved)
+df <- df %>% select(-c(X_id, fiwareServicePath, entityType))
+df <- df %>% rename(FechaEnvio = recvTime) %>% rename(FechaObservacion = dateObserved) %>% rename(IdEntidad = entityId)
+
+
+
+#Pregunta 1:¿Que calle es la más ruidosa?
+#Pregunta 2: ¿Cual es la menos ruidosa?
+#Pregunta 3: ¿A que hora hay el mayor índice de ruido?
 ```
