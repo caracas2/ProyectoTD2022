@@ -45,3 +45,11 @@ df <- df %>% rename(FechaEnvio = recvTime) %>% rename(FechaObservacion = dateObs
 2.  ¿A que hora hay el mayor y menor índice de ruido?
 
 3.  ¿Que relación podrías extraer de la pregunta anterior?
+
+4.  ¿Que mes del año tiene el maximo indice de ruido? ¿Y el minimo?
+
+5.  Calcula la media de los dos meses del anterior apartado.
+
+6.  ¿Como afecto el confinamiento?
+
+7.  ¿Como varía el ruido en función de la hora?
