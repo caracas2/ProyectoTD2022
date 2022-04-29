@@ -9,8 +9,12 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
 
 ```{r}
+#Lo primero que haremos será llamar a todas las librerías necesarias que vamos a utilizar en este trabajo
 library(tidyr)
 library(dplyr)
+
+
+#Posteriormente cargamos los 14 ficheros de datos 
 df1 <- read.csv("data/D1.csv")
 df2 <- read.csv("data/D2.csv")
 df3 <- read.csv("data/D3.csv")
@@ -26,15 +30,23 @@ df12 <- read.csv("data/D12.csv")
 df13 <- read.csv("data/D13.csv")
 df14 <- read.csv("data/D14.csv")
 
+
+#Fusionamos los datos en un único data frame
 df <- df1 %>% union_all(df2) %>% union_all(df3) %>% union_all(df4) %>%union_all(df5) %>%union_all(df6) %>%union_all(df7) %>%union_all(df8) %>%union_all(df9) %>%union_all(df10) %>%union_all(df11) %>%
 union_all(df12) %>%union_all(df13) %>%union_all(df14)
 
+#Acondicionamos los datos para que se correspondan con un tidy dataset.
 df <- df %>% pivot_longer(cols = starts_with("LA"), names_to = "Periodo", values_to = "Valores", names_prefix = "/")
+
 df$dateObserved <- as.Date(df$dateObserved)
 
-df <- df %>% select(-c(X_id, fiwareServicePath, entityType))
+#Eliminamos columnas que son irrelevantes para este proyecto
+df <- df %>% select(-c(ï.._id, fiwareServicePath, entityType))
 
+#Cambiamos el nombre de las columnas recvTime y dateObservation para que sea mas fácil realizar las siguientes operaciones.
 df <- df %>% rename(FechaEnvio = recvTime) %>% rename(FechaObservacion = dateObserved) %>% rename(IdEntidad = entityId)
+
+#A continuacíon hemos planteado 7 preguntas las cuales más adelante responderemos.
 
 ```
 
