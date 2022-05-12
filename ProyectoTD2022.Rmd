@@ -76,6 +76,23 @@ Cambiamos el nombre de las columnas recvTime y dateObservation para que sea mas 
 ```{r}
 df <- df %>% rename(FechaObservacion = dateObserved) %>% rename(IdEntidad = entityId)
 
+df_tidy <- df %>%  
+   
+  mutate(IdEntidad = ifelse(IdEntidad == "T248677-daily" , "VivChafCadz", IdEntidad))%>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248671-daily" , " Cadiz16 ", IdEntidad))%>%
+  mutate(IdEntidad = ifelse(IdEntidad == "T248670-daily" , "CarlCervChaf", IdEntidad))%>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248655-daily", "Cadiz3 ", IdEntidad))%>%
+  mutate(IdEntidad = ifelse(IdEntidad == "T248678-daily" , "CarlCerv34 ", IdEntidad)) %>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248682-daily" , "Cuba3", IdEntidad)) %>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248682-daily" , "Cuba3", IdEntidad)) %>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248669-daily" , "DoctorSerrano21", IdEntidad))%>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248676-daily" , "SalvAbrilChaf", IdEntidad))%>% 
+  mutate(IdEntidad= ifelse(IdEntidad == "T248683-daily", "Sueca2" , IdEntidad))%>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248680-daily", "Sueca32", IdEntidad))%>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248652-daily","SuecaEsqDenia",  IdEntidad))%>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248684-daily","Sueca61", IdEntidad))%>%
+  mutate(IdEntidad = ifelse(IdEntidad == "T248672-daily" , "PuertoRico21", IdEntidad))%>%
+  mutate(IdEntidad = ifelse(IdEntidad == "T248661-daily" , "GeneralPrim",  IdEntidad))
 ```
 
 A continuacíon hemos planteado 7 preguntas las cuales más adelante responderemos.
