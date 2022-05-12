@@ -10,10 +10,18 @@ output:
 Lo primero que haremos será llamar a todas las librerías necesarias que vamos a utilizar en este trabajo.
 
 ```{r}
-
-library(tidyr)
-library(dplyr)
-library(stringr)
+# Especificamos las librerías necesarias en esta lista
+packages = c("stringr", "ggplot2","tidyr","dplyr","readr", "plotly")# use this function to check if each package is on the local machine
+# if a package is installed, it will be loaded
+# if any are not, the missing package(s) will be installed and loaded
+package.check <- lapply(packages, FUN = function(x) {
+  if (!require(x, character.only = TRUE)) {
+    install.packages(x, dependencies = TRUE,repos='http://cran.rediris.es')
+    library(x, character.only = TRUE)
+  }
+})
+# verify they are loaded
+search()
 
 ```
 
