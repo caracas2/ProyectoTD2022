@@ -153,6 +153,65 @@ df_tidy%>%
 
 ```
 
+### PREGUNTA 2: ¿Que mes del año tiene el máximo indice de ruido? ¿Y el mínimo?**
+
+Para contestar a la pregunta planteada, analizaremos las variables FechaObservacion, que contiene la fecha de la observacion como bien indica su nombre, y la variable Valores que contiene los indices de ruido de cada observacion. Para tener una mejor representacion de cada mes, agruparemos la variable FechaObservacion por el mes, y haremos la media de los Valores (indices de ruido) que le corresponden.
+
+```{r}
+
+library(lubridate)
+
+df_meses <- df_tidy
+df_meses$Month<-months(df_meses$FechaObservacion)
+df_meses$Year<-format(df_meses$FechaObservacion,format="%y")
+
+
+is.na(df_meses) <- sapply(df_meses, is.infinite)
+
+media_meses <- df_meses %>% filter(!is.na(Valores)) %>% group_by(Month) %>% summarise(media_ruido = mean(Valores))
+head(media_meses)
+#aggregate(Valores~Month,df_meses,mean)
+
+```
+
+Ahora que tenemos todos los datos limpiados y filtrados, podemos proceder a sacar las graficas y determinar los meses con mayor y menor indice de ruido:
+
+```{r}
+library(scales)
+
+media_meses %>% ggplot(aes(x = Month, y = media_ruido, group = 1), colour = Month) + geom_line() + geom_point() + labs(x = "Meses", y = "Indice Ruido", title = "Indice Ruido por Mes") + theme(axis.text.x=element_text(angle=45, hjust=1), panel.background = element_rect(fill = "lightblue")) + geom_hline(yintercept = mean(media_meses$media_ruido), color="red", lty="dashed", size = 1)
+
+media_meses %>% ggplot(aes(x = Month, y = media_ruido, fill = Month, ratio = 50)) + geom_bar(stat = "identity") + labs(x = "Meses", y = "Indice Ruido", title = "Indice Ruido por Mes") +  theme(axis.text.x=element_text(angle=45, hjust=1)) + scale_y_continuous(limits = c(55,65), oob = rescale_none) + geom_hline(yintercept = mean(media_meses$media_ruido), color="black", lty="dashed", size = 1.25)
+                                                                                                                                                                                                                                                      
+
+
+
+```
+
+En las graficas se ve claramente que el mes con más indice de ruido es Marzo, y el mes con el menor indice es Enero, además en amnos gráfico hemos incluido una linea roja que representa el valor medio de ruido de todos los meses. Aun asi, para estar seguros lo comprobaremos de la siguiente manera:
+
+```{r}
+#Mayor indice de ruido:
+maximo <- filter(media_meses, media_ruido == max(media_ruido))
+maximo
+
+#Menor indice de ruido:
+minimo <- filter(media_meses, media_ruido == min(media_ruido))
+minimo
+
+#Diferencia en numero real:
+maximo$media_ruido - minimo$media_ruido
+
+#Diferencia en porcentaje:
+((maximo$media_ruido / minimo$media_ruido)*100)-100
+
+#Media de indicee de ruido por mes:
+mean(media_meses$media_ruido) #60.53897
+```
+
+Para concluir, podemos afirmar que el mayor indice de ruido lo tiene el mes de Marzo (63.43801). Una explicación lógica a esta conclusión podría ser que las Falls de Valencia se celebran ese mismo mes y por tanto el ruido sobrepasa la media. El mes de enero resulta tener el menor indice de ruido (58.65435), que seguramente sea debido a que segun los estudios meteorológicos es el mes más frío en España. Como dato adiccional, hemos calculado la diferencia entre los dos datos obtenidos, que es 4.783661 o bien un 8.15568%.
+
+Por último debemos mencionar que el indice de ruido de Enero esta por debajo de la media de ruido (60.63897), en cambio el indice de ruido de Marzo esta casi 4 unidades por encima.
 
 ### PREGUNTA 5: ¿Como varía el ruido dependiendo de si es lunes o sábado?
 
