@@ -478,37 +478,3 @@ junto %>% ggplot(aes(x=FechaObservacion, y = Valores, color= Valores)) + geom_po
 
 Gracias al gráfico podemos ver que los lunes la intensidad de ruido es mucho más pequeña a la de los viernes. Esto se debe al fin de semana, ya que los sabados la gente sale más por la calle tanto a dar un paseo como a un bar a tomar algo. En cambio, los lunes la gente trabaja y la mayor parte del dia se lo pasan dentro de una oficina, por tanto no haygran concentración de gente en la calle como pasa los sábados.
 
-### PREGUNTA 5: ¿Como varía el ruido dependiendo de si es lunes o sábado?
-
-Para empezar a responder a esta cuestión deberemos seleccionar todos los lunes y todos los viernes. Para ello utlizaremos la función 'filter'.
-
-```{r}
-lunes <- df_tidy %>% filter(wday(FechaObservacion)=='2')
-sabado <- df_tidy %>% filter(wday(FechaObservacion)=='7')
-```
-
-A continuación, cambiaremos el formato de la fecha para que más tarde represntarlo sea más fácil.
-
-```{r}
-for (x in lunes){
-  lunes$FechaObservacion = 'Lunes' 
-}
-
-for (x in sabado){
-  sabado$FechaObservacion = 'Sábado' 
-}
-```
-
-Juntamos los dos dataframes:
-
-```{r}
-junto <- rbind(lunes, sabado)
-```
-
-Por último, representamos el dataframe y vemos las diferencias.
-
-```{r}
-junto %>% ggplot(aes(x=FechaObservacion, y = Valores, color= Valores)) + geom_point() + labs(title = 'Pregunta 5', x = 'Fecha Observación', y = 'Intensidad ruido')
-```
-
-Gracias al gráfico podemos ver que los lunes la intensidad de ruido es mucho más pequeña a la de los viernes. Esto se debe al fin de semana, ya que los sabados la gente sale más por la calle tanto a dar un paseo como a un bar a tomar algo. En cambio, los lunes la gente trabaja y la mayor parte del dia se lo pasan dentro de una oficina, por tanto no haygran concentración de gente en la calle como pasa los sábados.
