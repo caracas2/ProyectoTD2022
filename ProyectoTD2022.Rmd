@@ -151,7 +151,7 @@ junto <- rbind(lunes, sabado)
 Por último, representamos el dataframe y vemos las diferencias.
 
 ```{r}
-junto %>% ggplot(aes(x=FechaObservacion, y = Valores, color= Valores)) + geom_point()
+junto %>% ggplot(aes(x=FechaObservacion, y = Valores, color= Valores)) + geom_point() + labs(title = 'Pregunta 5', x = 'Fecha Observación', y = 'Intensidad ruido')
 ```
 
 Gracias al gráfico podemos ver que los lunes la intensidad de ruido es mucho más pequeña a la de los viernes. Esto se debe al fin de semana, ya que los sabados la gente sale más por la calle tanto a dar un paseo como a un bar a tomar algo. En cambio, los lunes la gente trabaja y la mayor parte del dia se lo pasan dentro de una oficina, por tanto no haygran concentración de gente en la calle como pasa los sábados.
