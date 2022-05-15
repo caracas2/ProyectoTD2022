@@ -2,14 +2,22 @@
 title: "ProyectoTD2022"
 author: ' Carles Vicent Adam Castañer, Ana González Mandler, Arnau Monzó Ferragut,
   Ivan Alexandrov y Amparo Galvez Vilar. GRUPO F'
+date:  "`r Sys.Date()`"  # Fecha del día actual
 output:
   html_document:
-    df_print: paged
+    echo: yes
+    number_sections: no
+    theme: lumen
+    toc: yes
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+    number_sections: no
 ---
-
+## INSTALACIÓN LIBRERÍAS
 Lo primero que haremos será llamar a todas las librerías necesarias que vamos a utilizar en este trabajo.
 
-```{r}
+```{r include=F}
 # Especificamos las librerías necesarias en esta lista
 packages = c("stringr", "ggplot2","tidyr","dplyr","readr", "plotly", "lubridate")# use this function to check if each package is on the local machine
 # if a package is installed, it will be loaded
@@ -25,6 +33,7 @@ search()
 
 ```
 
+## PRIMERA FASE:
 Posteriormente cargamos los 14 ficheros de datos
 
 ```{r}
@@ -64,6 +73,7 @@ for (file in files){
 }
 ```
 
+## SEGUNDA FASE:
 Acondicionamos los datos para que se correspondan con un tidy dataset.
 
 ```{r}
@@ -103,11 +113,8 @@ df_tidy <- df %>%
   mutate(IdEntidad = ifelse(IdEntidad == "T248661-daily" , "GeneralPrim",  IdEntidad))
 ```
 
-```{r}
-#df_tidy <- df_tidy %>% mutate(Valores = ifelse(!is.finite(Valores)|Valores<0, NA, Valores))
-```
 
-A continuacíon hemos planteado 7 preguntas las cuales más adelante responderemos.
+A continuacíon hemos planteado varias preguntas las cuales más adelante responderemos.
 
 ## PREGUNTAS PROPUESTAS
 
