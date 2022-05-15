@@ -213,6 +213,64 @@ Para concluir, podemos afirmar que el mayor indice de ruido lo tiene el mes de M
 
 Por último debemos mencionar que el indice de ruido de Enero esta por debajo de la media de ruido (60.63897), en cambio el indice de ruido de Marzo esta casi 4 unidades por encima.
 
+### PREGUNTA 3: Relación o Media entre los indices de ruido maximos y minimos**
+
+```{r}
+#Vamos a crear un data frame con todas las observaciones para
+#los meses que hemos obtenido en el apartado anterior
+#Enero y Marzo.
+
+df_meses_rel <- df_meses %>% filter(Month == "January" | Month == "March")
+
+df_meses_rel$Day <- format(df_meses_rel$FechaObservacion,format="%d")
+```
+
+```{r}
+#df_meses_rel %>% ggplot(aes(x = Valores, y = Day, colour = Month)) + geom_point()
+
+#Media entre ambos valores:
+(maximo$media_ruido + minimo$media_ruido)/2
+
+#df_meses_rel$Valores <- as.factor(df_meses_rel$Valores)
+
+df_meses_rel %>% ggplot(aes(x=Month, y = Valores, fill = Month)) + geom_boxplot() + theme_minimal()
+
+```
+
+### PREGUNTA 5: ¿Como varía el ruido dependiendo de si es lunes o sábado?
+
+Para empezar a responder a esta cuestión deberemos seleccionar todos los lunes y todos los viernes. Para ello utlizaremos la función 'filter':
+
+```{r}
+lunes <- df_tidy %>% filter(wday(FechaObservacion)=='2')
+sabado <- df_tidy %>% filter(wday(FechaObservacion)=='7')
+```
+
+A continuación, cambiaremos el formato de la fecha para que más tarde represntarlo sea más fácil.
+
+```{r}
+for (x in lunes){
+  lunes$FechaObservacion = 'Lunes' 
+}
+for (x in sabado){
+  sabado$FechaObservacion = 'Sábado' 
+}
+```
+
+Juntamos los dos dataframes:
+
+```{r}
+junto <- rbind(lunes, sabado)
+```
+
+Por último, representamos el dataframe y vemos las diferencias.
+
+```{r}
+junto %>% ggplot(aes(x=FechaObservacion, y = Valores, color= Valores)) + geom_point() + labs(title = 'Pregunta 5', x = 'Fecha Observación', y = 'Intensidad ruido')
+```
+
+Gracias al gráfico podemos ver que los lunes la intensidad de ruido es mucho más pequeña a la de los viernes. Esto se debe al fin de semana, ya que los sabados la gente sale más por la calle tanto a dar un paseo como a un bar a tomar algo. En cambio, los lunes la gente trabaja y la mayor parte del dia se lo pasan dentro de una oficina, por tanto no haygran concentración de gente en la calle como pasa los sábados.
+
 ### PREGUNTA 5: ¿Como varía el ruido dependiendo de si es lunes o sábado?
 
 Para empezar a responder a esta cuestión deberemos seleccionar todos los lunes y todos los viernes. Para ello utlizaremos la función 'filter'.
