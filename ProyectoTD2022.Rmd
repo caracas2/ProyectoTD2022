@@ -10,6 +10,8 @@ output:
     theme: lumen
     toc: yes
   pdf_document:
+    code_folding: hide 
+    echo: yes
     toc: yes
     toc_depth: 3
     number_sections: no
@@ -21,7 +23,7 @@ Lo primero que haremos será llamar a todas las librerías necesarias que vamos 
 
 ```{r include=F}
 # Especificamos las librerías necesarias en esta lista
-packages = c("stringr", "ggplot2","tidyr","dplyr","readr", "plotly", "lubridate", "car", "GGally")# use this function to check if each package is on the local machine
+packages = c("stringr", "ggplot2","tidyr","dplyr","readr", "plotly", "lubridate", "car", "GGally", 'shiny', 'shinyWidgets')# use this function to check if each package is on the local machine
 # if a package is installed, it will be loaded
 # if any are not, the missing package(s) will be installed and loaded
 package.check <- lapply(packages, FUN = function(x) {
@@ -101,10 +103,10 @@ df <- df %>% rename(FechaObservacion = dateObserved) %>% rename(IdEntidad = enti
 df_tidy <- df %>%  
    
   mutate(IdEntidad = ifelse(IdEntidad == "T248677-daily" , "VivChafCadz", IdEntidad))%>% 
-  mutate(IdEntidad = ifelse(IdEntidad == "T248671-daily" , " Cadiz16 ", IdEntidad))%>%
+  mutate(IdEntidad = ifelse(IdEntidad == "T248671-daily" , "Cadiz16", IdEntidad))%>%
   mutate(IdEntidad = ifelse(IdEntidad == "T248670-daily" , "CarlCervChaf", IdEntidad))%>% 
-  mutate(IdEntidad = ifelse(IdEntidad == "T248655-daily", "Cadiz3 ", IdEntidad))%>%
-  mutate(IdEntidad = ifelse(IdEntidad == "T248678-daily" , "CarlCerv34 ", IdEntidad)) %>% 
+  mutate(IdEntidad = ifelse(IdEntidad == "T248655-daily", "Cadiz3", IdEntidad))%>%
+  mutate(IdEntidad = ifelse(IdEntidad == "T248678-daily" , "CarlCerv34", IdEntidad)) %>% 
   mutate(IdEntidad = ifelse(IdEntidad == "T248682-daily" , "Cuba3", IdEntidad)) %>% 
   mutate(IdEntidad = ifelse(IdEntidad == "T248682-daily" , "Cuba3", IdEntidad)) %>% 
   mutate(IdEntidad = ifelse(IdEntidad == "T248669-daily" , "DoctorSerrano21", IdEntidad))%>% 
@@ -334,11 +336,14 @@ A continuación hemos planteado 7 preguntas las cuales más adelante responderem
 
 3.  Calcula la media de los dos meses del anterior apartado.
 
-4.  ¿Como afecto el confinamiento?
+4.  Existe alguna relación entre la evolución del ruido entre las distintas calles? Realiza una comparativa visual de forma interactiva
 
-5.  ¿Como varía el ruido dependiendo de si es lunes o sábado?
+5.  ¿Como afectaron las fallas?
+
+6.  ¿Como varía el ruido dependiendo de si es lunes o sábado?
 
 LAeq_d \<- 7-19 LAeq_den \<- indice entre los tres dia, tarde, noche LAeq_e \<- 19-23 LAeq_n \<- 23-7 LAeq \<- periodo estable de 1 min
+
 
 ### PREGUNTA 1: ¿Cual es la calle más ruidosa?¿Y la que menos?
 Calculamos en primer lugar la calle más ruidosa
@@ -444,7 +449,122 @@ df_meses_rel %>% ggplot(aes(x=Month, y = Valores, fill = Month)) + geom_boxplot(
 
 ```
 
-### PREGUNTA 5: ¿Como varía el ruido dependiendo de si es lunes o sábado?
+
+### PREGUNTA 4.  Existe alguna relación entre la evolución del ruido entre las distintas calles? Realiza una comparativa visual de forma interactiva
+
+Filtramos, agrupamos, calculamos las medias de los valores en función de los grupos y juntamos con tal de obtener una nueva columna que contenga la información del año y del mes
+
+```{r}
+filtrado = df_tidy %>% filter(Periodo == 'LAeq') %>% group_by(año = year(FechaObservacion), mes =  month(FechaObservacion), calle = IdEntidad) %>% summarise(media_mes = mean(Valores)) %>% unite(año_mes, año:mes, sep = ' ')
+```
+
+Cambiamos los nombres de esta nueva columna creada, con tal de después (ya siendo valores enteros) poder representar ordenadamente los distintos meses en el eje X
+
+```{r}
+#Cambiamos los nombres
+filtrado = filtrado %>%  mutate(año_mes = ifelse(año_mes == '2020 9', 1, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2020 10', 2, año_mes))%>% 
+                mutate(año_mes = ifelse(año_mes == '2020 11', 3, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2020 12', 4, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 1', 5, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 2', 6, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 3', 7, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 4', 8, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 5', 9, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 6', 10, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 8', 11, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 9', 12, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 10', 13, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 11', 14, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2021 12', 15, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2022 1', 16, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2022 2', 17, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2022 3', 18, año_mes))%>%
+                mutate(año_mes = ifelse(año_mes == '2022 4', 19, año_mes))
+  
+
+#Convertimos a tipo entero
+filtrado$año_mes <- as.integer(filtrado$año_mes)
+```
+
+
+Generamos un gráfico interactivo con el usuario, de forma que a medida que el usuario seleccione entre las distintas calles, podremos ver la media de sonido para cada mes para las opciones seleccionadas.
+
+De este modo, podremos realizar de forma interactiva la comparativa entre las calles que se desee.
+
+```{r}
+library(shiny) 
+library(shinyWidgets)
+
+#Definimos la función de interfaz de usuario
+ui <- fluidPage(
+  fluidRow(
+    column(6, pickerInput("calle","Selecciona la calle que usted desee", choices = filtrado$calle, options = list(`actions-box` = TRUE),multiple = T))),
+  fluidRow(
+     plotOutput("grafico")
+          )
+)
+
+#Definimos la función del servidor
+server <- function(input, output){
+  
+  #Generamos el dataframe en función de las opciones seleccionadas por el usuario
+  datos <-reactive(filtrado %>% filter(calle == input$calle[1] | calle == input$calle[2]  | calle == input$calle[3]|   calle == input$calle[4]| calle == input$calle[5] | calle == input$calle[6] | calle == input$calle[7] | calle ==     input$calle[8] | calle == input$calle[9] | calle == input$calle[10] | calle == input$calle[11] | calle == input$calle[12] | calle == input$calle[13]| calle == input$calle[14]))
+  
+  #Realizamos un gráfico en función de las opciones seleccionadas por el usuario
+  output$grafico <-  renderPlot({
+    ggplot(data = datos(), aes(x = año_mes, y = media_mes, colour = calle )) + geom_point(size = 3) + geom_line() + 
+    labs(x = 'Mes', y = 'Ruido (dBA)', title = 'Distribución del nivel sonoro') + scale_x_continuous(breaks = c(1:19))+      scale_y_continuous(limit = c(54,69))
+  })
+
+}
+
+#Interconectamos ambas funciones
+shinyApp(ui = ui, server = server)
+```
+
+
+
+
+
+### PREGUNTA 5.  ¿Cómo afectaron las fallas?
+
+
+Generamos un dataframe que contendrá las medias de sonido de cada día para el mes de marzo de 2021
+
+```{r}
+library(lubridate)
+
+df_fallas_2021 = df_tidy %>% filter(FechaObservacion >= '2021-03-01' & FechaObservacion <= '2021-03-31') %>% group_by(FechaObservacion) %>% summarise(media_dia = mean(Valores, na.rm = TRUE), FechaObservacion = day(FechaObservacion)) %>% distinct()
+```
+
+
+Generamos un dataframe que contendrá las medias de sonido de cada día para el mes de marzo de 2022
+
+```{r}
+df_fallas_2022 = df_tidy %>% filter(FechaObservacion >= '2022-03-01' & FechaObservacion <= '2022-03-31') %>% group_by(FechaObservacion) %>% summarise(media_dia = mean(Valores, na.rm = TRUE), FechaObservacion = day(FechaObservacion)) %>% distinct()
+```
+
+
+Obtenemos un nuevo dataframe, calculamos columna de las medias y reprensentamos
+
+```{r}
+#Unimos ambos dataframes
+df_fallas = full_join(df_fallas_2021, df_fallas_2022, by = "FechaObservacion")
+
+#Calculamos una columna que contendrá las medias de ruidos entre ambos dataframes
+df_fallas = df_fallas %>% mutate(media_dia = abs(media_dia.x + media_dia.y)/2)
+
+#Representamos las medias de ruidos para el mes de marzo
+ggplot(data = df_fallas, aes(x = FechaObservacion, y = media_dia)) + geom_point() + geom_line(colour = 'green') + labs(title = 'Ruido en marzo', x = 'dia', y = 'Ruido (dBA)') + geom_vline(xintercept = day('2021-03-15'), size = 1, colour = 'red', linetype = 'longdash' ) + geom_vline(xintercept = day('2021-03-19'), size = 1, colour = 'red', linetype = 'longdash' )  +  scale_x_continuous(breaks = seq(3,31,3)) + scale_y_continuous(limit = c(58,75)) + geom_text( x = 17, y = 74, label = "Fallas Valencia", size = 3) 
+```
+
+
+
+
+
+
+### PREGUNTA 6: ¿Cómo varía el ruido dependiendo de si es lunes o sábado?
 
 Para empezar a responder a esta cuestión deberemos seleccionar todos los lunes y todos los viernes. Para ello utlizaremos la función 'filter':
 
@@ -477,4 +597,3 @@ junto %>% ggplot(aes(x=FechaObservacion, y = Valores, color= Valores)) + geom_po
 ```
 
 Gracias al gráfico podemos ver que los lunes la intensidad de ruido es mucho más pequeña a la de los viernes. Esto se debe al fin de semana, ya que los sabados la gente sale más por la calle tanto a dar un paseo como a un bar a tomar algo. En cambio, los lunes la gente trabaja y la mayor parte del dia se lo pasan dentro de una oficina, por tanto no haygran concentración de gente en la calle como pasa los sábados.
-
