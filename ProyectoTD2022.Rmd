@@ -329,21 +329,23 @@ A continuación hemos planteado 7 preguntas las cuales más adelante responderem
 
 
 
-## PREGUNTAS PROPUESTAS
+## 7- PREGUNTAS PROPUESTAS
 
 1.  ¿Que calle es la mas ruidosa? ¿Y la que menos?
 
 2.  ¿Que mes del año tiene el maximo indice de ruido? ¿Y el minimo?
 
-3.  Calcula la media de los dos meses del anterior apartado.
+3.  Relación o Media entre los indices de ruido maximos y minimos**
 
 4.  Existe alguna relación entre la evolución del ruido entre las distintas calles? Realiza una comparativa visual de forma interactiva
 
-5.  ¿Como afectaron las fallas?
+5. ¿Coinciden los meses con mas y menos sonido en cada año?
 
-6.  ¿Como varía el ruido dependiendo de si es lunes o sábado?
+6.  ¿Como afectaron las fallas?
 
-LAeq_d \<- 7-19 LAeq_den \<- indice entre los tres dia, tarde, noche LAeq_e \<- 19-23 LAeq_n \<- 23-7 LAeq \<- periodo estable de 1 min
+7.  ¿Como varía el ruido dependiendo de si es lunes o sábado?
+
+LAeq_d \<- 7-19h LAeq_den \<- indice entre los tres dia, tarde, noche LAeq_e \<- 19-23h LAeq_n \<- 23-7h LAeq \<- periodo estable de 1 min
 
 
 ### PREGUNTA 1: ¿Cual es la calle más ruidosa?¿Y la que menos?
@@ -365,6 +367,7 @@ df_tidy%>%
 
 
 ```
+
 
 ### PREGUNTA 2: ¿Que mes del año tiene el máximo indice de ruido? ¿Y el mínimo?**
 
@@ -425,6 +428,7 @@ mean(media_meses$media_ruido) #60.53897
 Para concluir, podemos afirmar que el mayor indice de ruido lo tiene el mes de Marzo (63.43801). Una explicación lógica a esta conclusión podría ser que las Falls de Valencia se celebran ese mismo mes y por tanto el ruido sobrepasa la media. El mes de enero resulta tener el menor indice de ruido (58.65435), que seguramente sea debido a que segun los estudios meteorológicos es el mes más frío en España. Como dato adiccional, hemos calculado la diferencia entre los dos datos obtenidos, que es 4.783661 o bien un 8.15568%.
 
 Por último debemos mencionar que el indice de ruido de Enero esta por debajo de la media de ruido (60.63897), en cambio el indice de ruido de Marzo esta casi 4 unidades por encima.
+
 
 ### PREGUNTA 3: Relación o Media entre los indices de ruido maximos y minimos**
 
@@ -524,11 +528,89 @@ server <- function(input, output){
 shinyApp(ui = ui, server = server)
 ```
 
+### PREGUNTA 5. ¿Coinciden los meses con mas y menos sonido en cada año?
+
+
+Primero de todo analizaremos el intervalo que tenemos en la fecha de observación, es decir buscaremos cual es la fecha más antigua, y cual es la mas reciente
+
+```{r}
+table(df_meses$Year) 
+#Podemos ver que solo estamos analizando los años 2020, 2021 y 2022
+
+#Buscamos cual ha sido la fecha más antigua en la que se hizo una observacion:
+min(df_meses$FechaObservacion) #desde el 17 de sepitiembre del 2020
+
+#Fecha más raciente de la observación:
+max(df_meses$FechaObservacion) #20 de abril 2022
+
+```
+
+Tras haber realizado el análisis, podemos concluir que la fecha más reciente es 20 de abril 2022, y la fecha más antigua es 17 de septiembre 2020. Por tanto para contestar a la pregunta que nos habiamos planteado, ¿Coinciden los meses con mas y menos sonido en cada año?, deberemos tener en cuenta que las observaciones de los años 2020 y 2022 no son del año entero sino de casi la mitad, por tanto los datos obtenidos no seran realmente veríficos.
+
+A continuación crearemos un data frame para las observaciones de cada año:
+
+```{r}
+#Creamos un data frame para cada año y sus observaciones.
+a20_meses <- df_meses %>% filter(Year == "20" & !is.na(Valores)) 
+count(a20_meses)
+
+a21_meses <- df_meses %>% filter(Year == "21" & !is.na(Valores))
+count(a21_meses)
+
+a22_meses <- df_meses %>% filter(Year == "22" & !is.na(Valores))
+count(a22_meses)
+```
+
+Podemos darnos cuenta de que el año 2020 tiene 7565 observaciones, el año 2021 tiene 20238 y el año 2022 tiene 7490. Asi que está claro que el año con nos dará el resultado más preciso es el año 2021.
+
+A continuación buscaremos el mes con más y menos ruido para cada año y los representaremos para ver mejor las diferencias y sus evoluciones:
+
+Año 2020:
+
+```{r}
+
+a20_meses_rel <- a20_meses %>% filter(!is.na(Valores)) %>% group_by(Month) %>% summarise(media_ruido = mean(Valores))
+head(a20_meses_rel)
+
+a20_meses_rel %>% filter(media_ruido == max(media_ruido))
+a20_meses_rel %>% filter(media_ruido == min(media_ruido))
+```
+
+El mes con más ruido (**59.76343**) del año **2020** es **Septiembre**, y el mes con menos media de ruido (**59.25526**) es **Diciembre**.
+
+Año 2021:
+
+```{r}
+
+a21_meses_rel <- a21_meses %>% filter(!is.na(Valores)) %>% group_by(Month) %>% summarise(media_ruido = mean(Valores))
+head(a21_meses_rel)
+
+a21_meses_rel %>% filter(media_ruido == max(media_ruido))
+a21_meses_rel %>% filter(media_ruido == min(media_ruido))
+```
+
+El mes co más ruido del año **2021** es **Septiembre**, con **63.82947** de indice, y **Febrero** es el que menor indice de ruido tiene **57.193.**
+
+Año 2022:
+
+```{r}
+
+a22_meses_rel <- a22_meses %>% filter(!is.na(Valores)) %>% group_by(Month) %>% summarise(media_ruido = mean(Valores))
+head(a22_meses_rel)
+
+a22_meses_rel %>% filter(media_ruido == max(media_ruido))
+a22_meses_rel %>% filter(media_ruido == min(media_ruido))
+```
+
+En el año 2022, el mes con mayor indice de ruido es Marzo con 66.65673 y el menor es Enero con 59.98954.
+
+Finalmente podemos concluir que los meses con menor ruido han ido cambiando, pero los tres meses pertenecen a invierno asi que podemos decir que sigue la idea principal, de que los meses más silenciosos son en invierno.
+
+En cambio, el mes con más ruido en los años 2020 y 2021 es Septiembre y del año 2022 es en Marzo. Lo más seguro que este cambio tan brusco sea debido a que este año se han celerado las fallas y en los dos años anteriores no por la pandemia.
 
 
 
-
-### PREGUNTA 5.  ¿Cómo afectaron las fallas?
+### PREGUNTA 6.  ¿Cómo afectaron las fallas?
 
 
 Generamos un dataframe que contendrá las medias de sonido de cada día para el mes de marzo de 2021
@@ -563,9 +645,7 @@ ggplot(data = df_fallas, aes(x = FechaObservacion, y = media_dia)) + geom_point(
 
 
 
-
-
-### PREGUNTA 6: ¿Cómo varía el ruido dependiendo de si es lunes o sábado?
+### PREGUNTA 7: ¿Cómo varía el ruido dependiendo de si es lunes o sábado?
 
 Para empezar a responder a esta cuestión deberemos seleccionar todos los lunes y todos los viernes. Para ello utlizaremos la función 'filter':
 
