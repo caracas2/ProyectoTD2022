@@ -21,7 +21,7 @@ Lo primero que haremos será llamar a todas las librerías necesarias que vamos 
 
 ```{r include=F}
 # Especificamos las librerías necesarias en esta lista
-packages = c("stringr", "ggplot2","tidyr","dplyr","readr", "plotly", "lubridate")# use this function to check if each package is on the local machine
+packages = c("stringr", "ggplot2","tidyr","dplyr","readr", "plotly", "lubridate", "car", "GGally")# use this function to check if each package is on the local machine
 # if a package is installed, it will be loaded
 # if any are not, the missing package(s) will be installed and loaded
 package.check <- lapply(packages, FUN = function(x) {
@@ -199,6 +199,7 @@ sum(!complete.cases(df_tidy))
 Lo primero que haremos será extraer datos básicos a partir de la variable de los valores de sonido (rango intercuantil, media, mediana, desviación estándar y la MADM). Esta última necesitará de una función previa para calcularla. Hay que tener en cuenta que el df contiene NA, por lo que habrá que ignorarlos.
 
 ```{r}
+df_tidyNO <- na.omit(df_tidy)
 
 df_tidy %>% summarise_if(is.numeric, funs(IQR, mean, median, sd, madm), na.rm=T)
 
