@@ -153,6 +153,7 @@ df_tidy%>%
 
 ```
 
+
 ### PREGUNTA 5: ¿Como varía el ruido dependiendo de si es lunes o sábado?
 
 Para empezar a responder a esta cuestión deberemos seleccionar todos los lunes y todos los viernes. Para ello utlizaremos la función 'filter'.
