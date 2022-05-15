@@ -14,7 +14,9 @@ output:
     toc_depth: 3
     number_sections: no
 ---
+
 ## INSTALACIÓN LIBRERÍAS
+
 Lo primero que haremos será llamar a todas las librerías necesarias que vamos a utilizar en este trabajo.
 
 ```{r include=F}
@@ -34,6 +36,7 @@ search()
 ```
 
 ## PRIMERA FASE:
+
 Posteriormente cargamos los 14 ficheros de datos
 
 ```{r}
@@ -74,6 +77,7 @@ for (file in files){
 ```
 
 ## SEGUNDA FASE:
+
 Acondicionamos los datos para que se correspondan con un tidy dataset.
 
 ```{r}
@@ -113,7 +117,6 @@ df_tidy <- df %>%
   mutate(IdEntidad = ifelse(IdEntidad == "T248661-daily" , "GeneralPrim",  IdEntidad))
 ```
 
-
 A continuacíon hemos planteado varias preguntas las cuales más adelante responderemos.
 
 ## PREGUNTAS PROPUESTAS
@@ -127,6 +130,28 @@ A continuacíon hemos planteado varias preguntas las cuales más adelante respon
 4.  ¿Como afecto el confinamiento?
 
 5.  ¿Como varía el ruido dependiendo de si es lunes o sábado?
+
+LAeq_d \<- 7-19 LAeq_den \<- indice entre los tres dia, tarde, noche LAeq_e \<- 19-23 LAeq_n \<- 23-7 LAeq \<- periodo estable de 1 min
+
+### PREGUNTA 1: ¿Cual es la calle más ruidosa?¿Y la que menos?
+Calculamos en primer lugar la calle más ruidosa
+```{r}
+
+df_tidy%>%
+  filter (Valores == max(Valores, na.rm = TRUE )) %>% 
+  select(c(IdEntidad, Valores))
+
+```
+En segundo lugar, calculamos la calle menos ruidosa
+
+```{r}
+
+df_tidy%>%
+  filter (Valores == min(Valores, na.rm = TRUE )) %>% 
+  select(c(IdEntidad, Valores))
+
+
+```
 
 ### PREGUNTA 5: ¿Como varía el ruido dependiendo de si es lunes o sábado?
 
