@@ -117,7 +117,213 @@ df_tidy <- df %>%
   mutate(IdEntidad = ifelse(IdEntidad == "T248661-daily" , "GeneralPrim",  IdEntidad))
 ```
 
-A continuacíon hemos planteado varias preguntas las cuales más adelante responderemos.
+
+#4- DETECCIÓN DE OUTLIERS
+
+A continuación, buscaremos datos que no estén en un rango marcado por ellos mismos (los conocidos como outliers). Estos outliers provocan que datos como la media o la desviación estándar estén influenciados y no acaben de dar el resultado que se espera.
+
+Para ello, utilizaremos dos de los métodos de detección de outliers que existen:la Regla Boxplot y el Identificador de Hampel.
+
+```{r}
+#Función para la MADM:
+madm <- function(x, na.rm=T) {1.4826*median(abs(x - median(x, na.rm=T)), na.rm = TRUE)
+}
+#Identificador de Hampel
+reglahampel <- function(x) { x > median(x, na.rm =TRUE) + 3*madm(x, na.rm = TRUE)| x < median(x, na.rm =TRUE) - 3*madm(x, na.rm = TRUE) 
+}
+
+# Regla boxplot
+reglaboxplot <- function(x) {
+  x < quantile(x, 1/4, na.rm =TRUE) - 1.5 * IQR(x,na.rm = TRUE) | x > quantile(x, 3/4, na.rm =TRUE) + 1.5 * IQR(x, na.rm = TRUE)  
+} 
+
+
+reglapercentil <- function(x) { x > quantile(x, 0.95, na.rm =TRUE) | x < quantile(x, 0.05, na.rm =TRUE) }
+```
+
+
+Una vez tenemos declaradas las funciones ya podemos buscar en cada variable si existen outliers.
+
+```{r}
+methods <- list(reglaboxplot=reglaboxplot, reglahampel=reglahampel, reglapercentil=reglapercentil)
+                
+df_tidyoutlier <- df_tidy %>% mutate(across("Valores", methods))
+
+```
+
+
+Una vez hemos encontrado los outliers, calculamos el porcentaje que significan estos mismos.
+
+```{r}
+suma_outliersbox <- sum(df_tidyoutlier$Valores_reglaboxplot)
+suma_outliershampel <- sum(df_tidyoutlier$Valores_reglahampel)
+
+pctg_sumabox <- (suma_outliersbox / nrow(df_tidy)) * 100
+pctg_sumahampel <- (suma_outliershampel / nrow(df_tidy)) * 100
+
+```
+
+Por tanto, el porcentaje de outliers respecto al total detectados mediante la Regla Boxplot es de `r pctg_sumabox`.
+
+Además, el porcentaje de outliers respecto al total detectados mediante el de Hampel es de `r pctg_sumahampel`.
+
+
+Finalmente, representaremos gráficamente dicha presencia de outliers según ambas reglas.
+
+```{r}
+df_tidyoutlier %>% pivot_longer(starts_with("Valores_regla"), "regla", values_to="outliers") %>% ggplot(aes(x=regla, y=Valores, color=outliers)) + geom_point(position="jitter") + labs(title="Comparativa outliers encontrados según la regla")
+```
+
+Los zona roja marca los valores que se encuentran en el rango normal según el método. Los demás puntos azules son los outliers que se detectan.
+Como se puede ver, estas dos reglas escogidas devuelven una cantidad de outliers parecida.
+
+
+##5- ANÁLISIS UNIVARIANTE Y ESTADÍSTICOS BÁSICOS
+
+
+Lo primero que haremos será reemplazar valores que no tengan sentido para el análisis (valores infinitos o negativos) de la variable de los valores de sonido, ya que tras visualizar el data frame podemos observar que existen valores infinitos, que pueden alterar los resultados.
+
+```{r}
+#View(df_tidy)
+df_tidy <- df_tidy %>% mutate(Valores = ifelse(!is.finite(Valores)|Valores<0, NA, Valores))
+
+```
+
+
+Hacemos una breve comprobación de cuántas observaciones hay del total incompletas(con valores perdidos).
+
+```{r}
+sum(!complete.cases(df_tidy))
+```
+
+Lo primero que haremos será extraer datos básicos a partir de la variable de los valores de sonido (rango intercuantil, media, mediana, desviación estándar y la MADM). Esta última necesitará de una función previa para calcularla. Hay que tener en cuenta que el df contiene NA, por lo que habrá que ignorarlos.
+
+```{r}
+
+df_tidy %>% summarise_if(is.numeric, funs(IQR, mean, median, sd, madm), na.rm=T)
+
+max <- max(df_tidyNO$Valores)
+min <- min(df_tidyNO$Valores)
+
+```
+
+A parte de estos valores, podemos saber que el valor máximo de dB captado por los sensores es de `r max`.
+
+Por otra parte, el valor mínimo total almacenado se quedará en `r min` dB.
+
+
+Una vez sabido esto, realizaremos un diagrama de dispersión para así visualizar que estos estadísticos básicos están bastante limitados en ciertos casos.
+
+```{r}
+plot(x = df_tidy$FechaObservacion, y = df_tidy$Valores, col = factor(df_tidy$IdEntidad), main = "Valores Sonido - Fecha Observación", xlab = "Fecha", ylab = "Sonido")
+```
+Los estadísticos pueden ser similares en distintos data frames aunque estos no se parezcan mucho, por lo que no pueden ser siempre la base para sacar los datos pertinentes.
+
+
+Ahora realizaremos una comprobación para ver si los datos que tenemos siguen una distribución gaussiana. Para ello, utilizaremos la función qqplot, aunque también se podría hacer mediante gráficos de densidad, histogramas, etc.
+Para esta función en específico necesitaremos la galería car, añadida previamente en la instalación de paquetes.
+
+```{r}
+library(car)
+qqPlot(df_tidy$Valores)
+```
+
+
+Realizaremos una visualización de los datos mediante un histograma, para que se puedan ver como se organizan los distintos valores de sonido.
+Además, añadiré una línea vertical que marcará la media de los valores y otra línea que marcará la densidad.
+
+```{r}
+df_tidy %>%  ggplot(aes(x=Valores)) + geom_histogram(aes(y=stat(density)), breaks=seq(40,98), col="grey", fill = "brown") + geom_density() + geom_vline(xintercept=mean(df_tidy$Valores, na.rm=T), col="yellow", linetype="dashed")
+```
+
+
+
+##6- ANÁLISIS BIVARIANTE (RELACIONES ENTRE VARIABLES)
+
+
+Para poder comprobar la relación entre los periodos del día, necesitamos que cada uno de estos sea una variable diferente.
+
+```{r}
+df_tidy_wide <- df_tidy %>% distinct() %>% pivot_wider(names_from = "Periodo", values_from = "Valores") %>% select(-IdEntidad, -FechaObservacion)
+colnames(df_tidy_wide) <- c("Medio", "Dia", "DiaTardeNoche", "Tarde", "Noche")
+df_tidy_wideNO <- na.omit(df_tidy_wide)
+```
+
+
+Una vez tenemos el data frame preparado, nos disponemos a iniciar el análisis bivariante. Como disponemos de variables cuantitativas, (el nombre de la calle es discreta pero la relación discreta/continua no se ha dado aún) se utilizará para conocer su relación la covarianza y la correlación.
+
+Empezaremos por midiendo la relación lineal entre variables mediante la covarianza de Pearson. Obtendremos la matriz de covarianza.
+
+```{r}
+cov(df_tidy_wideNO, method = 'pearson')
+```
+
+A continuación mediremos la misma relación pero esta vez usando la matriz de correlación.
+
+```{r}
+cor(df_tidy_wideNO, method = 'pearson')
+```
+
+
+Finalmente, podemos obtener la matriz de correlación pero mediante el método de Spearman (el cual es robusto frente a outliers y útil para las relaciones no lineales).
+
+```{r}
+cor(df_tidy_wideNO, method="spearman")
+```
+
+Como se ve los valores de esta matriz son muy similares a los del métodod de Pearson con una leve modificación en los valores.
+
+
+
+Seguidamente, comprobaremos la relación entre dos variables en específico.
+Las que más nos interesan sería la de Día-Noche, Día-Tarde y Noche-Tarde.
+
+```{r}
+Rel_DN <- cor(df_tidy_wideNO$Dia, df_tidy_wideNO$Noche, method="pearson")
+
+Rel_TN <- cor(df_tidy_wideNO$Tarde, df_tidy_wideNO$Noche, method="pearson")
+
+Rel_DT <- cor(df_tidy_wideNO$Dia, df_tidy_wideNO$Tarde, method="pearson")
+```
+
+Observación: no haría falta escribir el parámetro method ya que, por defecto, se aplica el método de Pearson.
+
+Los valores de la relación quedarán:
+
+La relación entre los valores del día y de la noche es de `r Rel_DN`.
+
+La relación entre los valores de la tarde y de la noche es de `r Rel_TN`.
+
+La relación entre los valores del día y de la tarde es de `r Rel_DT`.
+
+
+La representación gráfica quedaría:
+
+```{r}
+ggplot(data=gather(df_tidy_wideNO,key=Y,value=valor, -Dia),aes(x=Dia,y=valor))+ geom_line() + facet_wrap(~Y,ncol=3, scales = 'free_y')+geom_smooth(method = "lm", linetype ="dashed")
+```
+La línea azul representa el ajuste lineal de datos.
+
+También podemos representar dicha relación con la función ggpairs cuya librería ha sido cargada previamente. Esta herramienta permite visualizar perfectamente la correlación existente entre las variable de forma clara.
+
+```{r}
+ggpairs(df_tidy_wideNO)
+```
+
+
+Finalmente, mediante un diagrama de violín podemos representar la relación de ruido en función de la calle:
+
+```{r}
+ggplot(df_tidyNO, aes(IdEntidad, Valores, fill = IdEntidad)) +  
+  geom_violin() + labs(title="Valores de sonido según la calle", x=" ", y= "Sonido")
+
+```
+
+
+A continuación hemos planteado 7 preguntas las cuales más adelante responderemos.
+
+
+
 
 ## PREGUNTAS PROPUESTAS
 
