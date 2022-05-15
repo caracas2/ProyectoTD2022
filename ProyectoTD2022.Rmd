@@ -11,7 +11,7 @@ Lo primero que haremos será llamar a todas las librerías necesarias que vamos 
 
 ```{r}
 # Especificamos las librerías necesarias en esta lista
-packages = c("stringr", "ggplot2","tidyr","dplyr","readr", "plotly")# use this function to check if each package is on the local machine
+packages = c("stringr", "ggplot2","tidyr","dplyr","readr", "plotly", "lubridate")# use this function to check if each package is on the local machine
 # if a package is installed, it will be loaded
 # if any are not, the missing package(s) will be installed and loaded
 package.check <- lapply(packages, FUN = function(x) {
@@ -103,6 +103,10 @@ df_tidy <- df %>%
   mutate(IdEntidad = ifelse(IdEntidad == "T248661-daily" , "GeneralPrim",  IdEntidad))
 ```
 
+```{r}
+#df_tidy <- df_tidy %>% mutate(Valores = ifelse(!is.finite(Valores)|Valores<0, NA, Valores))
+```
+
 A continuacíon hemos planteado 7 preguntas las cuales más adelante responderemos.
 
 ## PREGUNTAS PROPUESTAS
@@ -116,3 +120,38 @@ A continuacíon hemos planteado 7 preguntas las cuales más adelante responderem
 4.  ¿Como afecto el confinamiento?
 
 5.  ¿Como varía el ruido dependiendo de si es lunes o sábado?
+
+### PREGUNTA 5: ¿Como varía el ruido dependiendo de si es lunes o sábado?
+
+Para empezar a responder a esta cuestión deberemos seleccionar todos los lunes y todos los viernes. Para ello utlizaremos la función 'filter'.
+
+```{r}
+lunes <- df_tidy %>% filter(wday(FechaObservacion)=='2')
+sabado <- df_tidy %>% filter(wday(FechaObservacion)=='7')
+```
+
+A continuación, cambiaremos el formato de la fecha para que más tarde represntarlo sea más fácil.
+
+```{r}
+for (x in lunes){
+  lunes$FechaObservacion = 'Lunes' 
+}
+
+for (x in sabado){
+  sabado$FechaObservacion = 'Sábado' 
+}
+```
+
+Juntamos los dos dataframes:
+
+```{r}
+junto <- rbind(lunes, sabado)
+```
+
+Por último, representamos el dataframe y vemos las diferencias.
+
+```{r}
+junto %>% ggplot(aes(x=FechaObservacion, y = Valores, color= Valores)) + geom_point()
+```
+
+Gracias al gráfico podemos ver que los lunes la intensidad de ruido es mucho más pequeña a la de los viernes. Esto se debe al fin de semana, ya que los sabados la gente sale más por la calle tanto a dar un paseo como a un bar a tomar algo. En cambio, los lunes la gente trabaja y la mayor parte del dia se lo pasan dentro de una oficina, por tanto no haygran concentración de gente en la calle como pasa los sábados.
