@@ -349,21 +349,38 @@ LAeq_d \<- 7-19h LAeq_den \<- indice entre los tres dia, tarde, noche LAeq_e \<-
 
 
 ### PREGUNTA 1: ¿Cual es la calle más ruidosa?¿Y la que menos?
-Calculamos en primer lugar la calle más ruidosa
-```{r}
 
+Para realizar esta pregunta emplearemos la variable IdEntidad, la cual identifica la calle correspondiente; y la variable Valores, que determina el nivel de ruido que tiene dicha calle.
+
+En primer lugar, calcularemos cual es la calle con mayor índice de ruido
+```{r}
 df_tidy%>%
   filter (Valores == max(Valores, na.rm = TRUE )) %>% 
-  select(c(IdEntidad, Valores))
+  dplyr::select(c(IdEntidad, Valores))
+
 
 ```
-En segundo lugar, calculamos la calle menos ruidosa
+
+La calle más ruidosa, con un índice de 97.4 es Carles Cervera, Chaflán Reina Doña María
+
+En segundo lugar, calculamos la calle con menos índice de ruido
+
 
 ```{r}
-
 df_tidy%>%
   filter (Valores == min(Valores, na.rm = TRUE )) %>% 
   select(c(IdEntidad, Valores))
+
+
+```
+
+La calle menos ruidosa es Carles Cervera 34, con un índice de de 40.1; que si lo comparamos con la anterior, su valor baja a menos de la mitad.
+
+
+```{r}
+library(ggplot2)
+ggplot(df_tidy,aes(x = Valores, y=IdEntidad)) + geom_col()
+
 
 
 ```
