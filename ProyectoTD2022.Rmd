@@ -348,6 +348,8 @@ A continuación hemos planteado 7 preguntas las cuales más adelante responderem
 LAeq_d \<- 7-19h LAeq_den \<- indice entre los tres dia, tarde, noche LAeq_e \<- 19-23h LAeq_n \<- 23-7h LAeq \<- periodo estable de 1 min
 
 
+
+
 ### PREGUNTA 1: ¿Cual es la calle más ruidosa?¿Y la que menos?
 
 Para realizar esta pregunta emplearemos la variable IdEntidad, la cual identifica la calle correspondiente; y la variable Valores, que determina el nivel de ruido que tiene dicha calle.
@@ -376,14 +378,12 @@ df_tidy%>%
 
 La calle menos ruidosa es Carles Cervera 34, con un índice de de 40.1; que si lo comparamos con la anterior, su valor baja a menos de la mitad.
 
-
+Lo vamos a representar con un gráfico geom_point para que se visualice mejor.
 ```{r}
-library(ggplot2)
-ggplot(df_tidy,aes(x = Valores, y=IdEntidad)) + geom_col()
-
-
+ggplot(df_tidy,aes(x = IdEntidad, y=Valores, color = IdEntidad)) + geom_point() + labs(x = "Calles", y = "Índice del Ruido", title = "Indice de Ruido por calles") + coord_flip()
 
 ```
+
 
 
 ### PREGUNTA 2: ¿Que mes del año tiene el máximo indice de ruido? ¿Y el mínimo?**
@@ -454,7 +454,7 @@ Por último debemos mencionar que el indice de ruido de Enero esta por debajo de
 #los meses que hemos obtenido en el apartado anterior
 #Enero y Marzo.
 
-df_meses_rel <- df_meses %>% filter(Month == "January" | Month == "March")
+df_meses_rel <- df_meses %>% filter(Month == "enero" | Month == "marzo")
 
 df_meses_rel$Day <- format(df_meses_rel$FechaObservacion,format="%d")
 ```
